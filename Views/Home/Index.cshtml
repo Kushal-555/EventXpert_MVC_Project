@@ -1,0 +1,196 @@
+﻿@model EventXpert.Models.HomeViewModel
+@{
+    ViewData["Title"] = "Tampa Bay Sports Hub";
+}
+
+<section class="hero fade-in">
+    <h1>Tampa Bay Sports Events &amp; Tickets</h1>
+    <p>Your single hub for USF Bulls, Buccaneers, Lightning &amp; Rowdies updates.</p>
+</section>
+
+<!-- LIVE TAMPA WEATHER -->
+<section class="weather-widget fade-in">
+    <h2 class="section-title">Tampa Live Weather</h2>
+    @if (Model.TampaWeather != null && Model.TampaWeather.Weathercode != -1)
+    {
+        var icon = Model.TampaWeather.Weathercode switch
+        {
+            0 => "Clear Sky",
+            1 or 2 or 3 => "Cloud",
+            45 or 48 => "Fog",
+            51 or 53 or 55 => "Drizzle",
+            61 or 63 or 65 => "Rain",
+            71 or 73 or 75 => "Snow",
+            95 or 96 or 99 => "Thunderstorm",
+            _ => "Partly Cloudy"
+        };
+        
+        <div class="weather-card">
+            <div class="weather-icon">@icon</div>
+            <div class="weather-info">
+                <div class="temp">@Model.TampaWeather.Temperature°C</div>
+                <div class="details">
+                    <span>Wind: @Model.TampaWeather.Windspeed km/h</span>
+                    <span class="@(Model.TampaWeather.PrecipitationProbability > 50 ? "precip-high" : "")">
+                        Precipitation: @Model.TampaWeather.PrecipitationProbability% chance
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>Weather data unavailable</p>
+    }
+</section>
+
+<!-- LIVE SOCCER SCOREBOARD -->
+<section class="scoreboard-widget fade-in">
+    <h2 class="section-title">Live Soccer Matches</h2>
+    @if (Model.LiveMatches != null && Model.LiveMatches.Any())
+    {
+        <table class="scoreboard-table">
+            <thead>
+                <tr>
+                    <th>Home</th>
+                    <th>Score</th>
+                    <th>Away</th>
+                    <th>Status</th>
+                    <th>League</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var match in Model.LiveMatches)
+                {
+                    var homeScore = string.IsNullOrEmpty(match.IntHomeScore) ? "-" : match.IntHomeScore;
+                    var awayScore = string.IsNullOrEmpty(match.IntAwayScore) ? "-" : match.IntAwayScore;
+                    var status = match.StrProgress ?? "LIVE";
+
+                    <tr>
+                        <td class="team-name">@match.StrHomeTeam</td>
+                        <td class="score">@homeScore - @awayScore</td>
+                        <td class="team-name">@match.StrAwayTeam</td>
+                        <td class="status">@status</td>
+                        <td class="league">@match.StrLeague</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No live matches right now. Check back during game time!</p>
+    }
+</section>
+
+<!-- LOGO CAROUSEL (unchanged) -->
+<section class="logos-section fade-in">
+    <h2 class="section-title">Featured Teams</h2>
+    <div class="logo-carousel">
+        <div class="logo-track">
+            <div class="logo-item"><img src="~/img/usf.png" alt="USF Bulls"><span>USF Bulls</span></div>
+            <div class="logo-item"><img src="~/img/bucs.png" alt="Tampa Bay Buccaneers"><span>Buccaneers</span></div>
+            <div class="logo-item"><img src="~/img/lightning.png" alt="Tampa Bay Lightning"><span>Lightning</span></div>
+            <div class="logo-item"><img src="~/img/rowdies.png" alt="Tampa Bay Rowdies"><span>Rowdies</span></div>
+
+            <div class="logo-item"><img src="~/img/usf.png" alt="USF Bulls"><span>USF Bulls</span></div>
+            <div class="logo-item"><img src="~/img/bucs.png" alt="Tampa Bay Buccaneers"><span>Buccaneers</span></div>
+            <div class="logo-item"><img src="~/img/lightning.png" alt="Tampa Bay Lightning"><span>Lightning</span></div>
+            <div class="logo-item"><img src="~/img/rowdies.png" alt="Tampa Bay Rowdies"><span>Rowdies</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES (unchanged) -->
+<section class="features fade-in">
+    <div class="card">
+        <h3>Local Focus</h3>
+        <p>Clean schedules and ticket insights for Tampa Bay fans.</p>
+    </div>
+    <div class="card">
+        <h3>Smart Assistant</h3>
+        <p>Chat with EventXpert for dates, venues and prices instantly.</p>
+    </div>
+    <div class="card">
+        <h3>Interactive Charts</h3>
+        <p>Visualize trends across teams, venues and ticket ranges.</p>
+    </div>
+</section>
+
+<!-- UPCOMING EVENTS (your original) -->
+<section class="events-preview fade-in">
+    <h2 class="section-title">Upcoming Events</h2>
+    <p class="events-desc">Explore live Tampa Bay match schedules — these events power the chatbot and analytics dashboards.</p>
+
+    <table class="events-table">
+        <thead>
+            <tr>
+                <th>Match</th>
+                <th>Date</th>
+                <th>Venue</th>
+                <th>Price ($)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Model.UpcomingEvents)
+            {
+                <tr>
+                    <td>@e.Match</td>
+                    <td>@e.Date.ToString("MMM dd, yyyy")</td>
+                    <td>@e.Venue</td>
+                    <td>@e.Price</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+<button id="topBtn">Back to Top</button>
+
+@section Styles {
+    <style>
+        /* Weather Widget */
+        .weather-widget { margin: 20px 0; text-align: center; }
+        .weather-card {
+            display: inline-flex; align-items: center; background: #e3f2fd; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .weather-icon { font-size: 48px; margin-right: 15px; }
+        .weather-info .temp { font-size: 36px; font-weight: bold; color: #1976d2; }
+        .weather-info .details { font-size: 16px; color: #555; }
+
+        /* Scoreboard */
+        .scoreboard-widget { margin: 30px 0; }
+        .scoreboard-table {
+            width: 100%; border-collapse: collapse; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;
+        }
+        .scoreboard-table th {
+            background: #1976d2; color: white; padding: 12px; text-align: center;
+        }
+        .scoreboard-table td {
+            padding: 12px; text-align: center; border-bottom: 1px solid #eee;
+        }
+        .team-name { font-weight: 600; }
+        .score { font-size: 1.2em; font-weight: bold; color: #d32f2f; }
+        .status { font-weight: bold; color: #2e7d32; }
+        .league { font-size: 0.9em; color: #555; }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .weather-card { flex-direction: column; text-align: center; }
+            .weather-icon { margin-bottom: 10px; }
+            .scoreboard-table { font-size: 14px; }
+        }
+        .precip-high { color: #d32f2f; font-weight: bold; }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        const btn = document.getElementById("topBtn");
+        window.onscroll = () => {
+            btn.style.display = (window.scrollY > 250) ? "block" : "none";
+        };
+        btn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+    </script>
+}

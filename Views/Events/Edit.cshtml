@@ -1,0 +1,37 @@
+﻿@model EventXpert.Models.Event
+@{
+    ViewData["Title"] = "Edit Event";
+}
+
+<h2>Edit Event</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div>
+        <label asp-for="Match"></label>
+        <input asp-for="Match" />
+        <span asp-validation-for="Match"></span>
+    </div>
+
+    <div>
+        <label asp-for="Date"></label>
+        <input asp-for="Date" type="date" />
+        <span asp-validation-for="Date"></span>
+    </div>
+
+    <div>
+        <label asp-for="Venue"></label>
+        <input asp-for="Venue" />
+        <span asp-validation-for="Venue"></span>
+    </div>
+
+    <div>
+        <label asp-for="Price"></label>
+        <input asp-for="Price" />
+        <span asp-validation-for="Price"></span>
+    </div>
+
+    <button type="submit" class="button-like">Save</button>
+    <a asp-action="Index">Back to list</a>
+</form>

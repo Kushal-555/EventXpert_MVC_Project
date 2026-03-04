@@ -1,0 +1,195 @@
+﻿@{
+    ViewData["Title"] = "Manage Events (API Version)";
+}
+
+<h2>Manage Events (via Internal API)</h2>
+<p>This page performs full CRUD using JavaScript and the internal API endpoints.</p>
+
+<div class="crud-container">
+    <form id="eventForm" class="event-form">
+        <input type="hidden" id="eventId" />
+        <div>
+            <label for="match">Match:</label>
+            <input id="match" type="text" placeholder="e.g. USF Bulls vs UCF Knights" required />
+        </div>
+        <div>
+            <label for="date">Date:</label>
+            <input id="date" type="date" required />
+        </div>
+        <div>
+            <label for="venue">Venue:</label>
+            <input id="venue" type="text" placeholder="Raymond James Stadium" required />
+        </div>
+        <div>
+            <label for="price">Price ($):</label>
+            <input id="price" type="number" min="0" required />
+        </div>
+        <button type="submit" class="button-like" id="saveBtn">Add Event</button>
+        <button type="button" class="button-secondary" id="cancelBtn" style="display:none;">Cancel</button>
+    </form>
+
+    <table id="eventTable">
+        <thead>
+            <tr>
+                <th>Match</th>
+                <th>Date</th>
+                <th>Venue</th>
+                <th>Price ($)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<style>
+    .crud-container {
+        margin-top: 20px;
+    }
+
+    .event-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .button-like {
+        background-color: #006747;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+    }
+
+        .button-like:hover {
+            background-color: #009a74;
+        }
+
+    .button-secondary {
+        background-color: #aaa;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+    }
+
+    #eventTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        #eventTable th, #eventTable td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #eventTable th {
+            background-color: #006747;
+            color: white;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        const apiBase = '/api/eventsapi';
+        const tableBody = document.querySelector('#eventTable tbody');
+        const form = document.getElementById('eventForm');
+        const idField = document.getElementById('eventId');
+        const matchField = document.getElementById('match');
+        const dateField = document.getElementById('date');
+        const venueField = document.getElementById('venue');
+        const priceField = document.getElementById('price');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        async function loadEvents() {
+            const res = await fetch(apiBase);
+            const data = await res.json();
+            renderTable(data);
+        }
+
+        function renderTable(events) {
+            tableBody.innerHTML = '';
+            events.forEach(e => {
+                tableBody.innerHTML += `
+                <tr>
+                    <td>${e.match}</td>
+                    <td>${new Date(e.date).toLocaleDateString()}</td>
+                    <td>${e.venue}</td>
+                    <td>${e.price}</td>
+                    <td>
+                        <button class="button-like" onclick="editEvent(${e.id}, '${e.match}', '${e.date}', '${e.venue}', ${e.price})">Edit</button>
+                        <button class="button-secondary" onclick="deleteEvent(${e.id})">Delete</button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const eventObj = {
+                id: idField.value || 0,
+                match: matchField.value,
+                date: dateField.value,
+                venue: venueField.value,
+                price: parseFloat(priceField.value)
+            };
+
+            if (idField.value) {
+                // Update existing
+                await fetch(`${apiBase}/${idField.value}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventObj)
+                });
+            } else {
+                // Create new
+                await fetch(apiBase, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventObj)
+                });
+            }
+
+            resetForm();
+            loadEvents();
+        });
+
+        function editEvent(id, match, date, venue, price) {
+            idField.value = id;
+            matchField.value = match;
+            dateField.value = date.split('T')[0];
+            venueField.value = venue;
+            priceField.value = price;
+            saveBtn.textContent = 'Update Event';
+            cancelBtn.style.display = 'inline-block';
+        }
+
+        async function deleteEvent(id) {
+            if (!confirm('Are you sure you want to delete this event?')) return;
+            await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
+            loadEvents();
+        }
+
+        function resetForm() {
+            idField.value = '';
+            matchField.value = '';
+            dateField.value = '';
+            venueField.value = '';
+            priceField.value = '';
+            saveBtn.textContent = 'Add Event';
+            cancelBtn.style.display = 'none';
+        }
+
+        cancelBtn.addEventListener('click', resetForm);
+
+        // Initial load
+        loadEvents();
+    </script>
+}

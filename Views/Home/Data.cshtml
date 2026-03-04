@@ -1,0 +1,102 @@
+﻿@model IEnumerable<EventXpert.Models.Event>
+@{
+    ViewData["Title"] = "Data Visualization";
+
+    // Serialize model to JSON for JS
+    var json = System.Text.Json.JsonSerializer.Serialize(
+        Model.Select(e => new
+        {
+            e.Match,
+            e.Price,
+            e.Venue,
+            Team = string.IsNullOrWhiteSpace(e.Team) ? e.Match : e.Team
+        })
+    );
+}
+
+<main class="charts fade-in">
+    <div class="chart-container">
+        <h3>&#128202; Average Ticket Price by Team</h3>
+        <canvas id="barChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>&#127967;&#65039; Events by Venue</h3>
+        <canvas id="pieChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>&#128197; Ticket Prices Over Time</h3>
+        <canvas id="lineChart"></canvas>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        const events = @Html.Raw(json);
+
+        // --- Avg Ticket Price by Team ---
+        const teamPrices = {};
+        events.forEach(e => {
+          if (!teamPrices[e.Team]) teamPrices[e.Team] = [];
+          teamPrices[e.Team].push(e.Price);
+        });
+        const teams = Object.keys(teamPrices);
+        const avgPrices = teams.map(t => {
+          const arr = teamPrices[t];
+          const sum = arr.reduce((a,b)=>a+b,0);
+          return sum / arr.length;
+        });
+
+        // --- Events by Venue ---
+        const venueCount = {};
+        events.forEach(e => {
+          if (!venueCount[e.Venue]) venueCount[e.Venue] = 0;
+          venueCount[e.Venue] += 1;
+        });
+
+        // --- Ticket Prices Over Time ---
+        const priceSeries = events.map(e => e.Price);
+        const labels = events.map((_, idx) => `Event ${idx+1}`);
+
+        // BAR
+        new Chart(document.getElementById('barChart'), {
+          type: 'bar',
+          data: {
+            labels: teams,
+            datasets: [{
+              label: 'Avg Price ($)',
+              data: avgPrices,
+              backgroundColor:["#006747","#b21e1e","#0060d0","#009b3a"]
+            }]
+          },
+          options: { scales: { y: { beginAtZero: true } } }
+        });
+
+        // PIE
+        new Chart(document.getElementById('pieChart'), {
+          type: 'pie',
+          data: {
+            labels: Object.keys(venueCount),
+            datasets: [{
+              data: Object.values(venueCount),
+              backgroundColor:["#006747","#b21e1e","#0060d0","#009b3a","#444"]
+            }]
+          }
+        });
+
+        // LINE
+        new Chart(document.getElementById('lineChart'), {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: priceSeries,
+              borderColor:"#006747",
+              backgroundColor:"#b2d8c2",
+              tension:.3,
+              fill:false
+            }]
+          },
+          options:{ plugins:{ legend:{ display:false } } }
+        });
+    </script>
+}

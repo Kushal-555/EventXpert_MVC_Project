@@ -1,0 +1,46 @@
+﻿@{
+    var title = ViewData["Title"] ?? "EventXpert";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@title - EventXpert</title>
+
+    <link rel="stylesheet" href="~/css/style.css" />
+
+    <!-- Icons / Fonts -->
+    <script src="https://kit.fontawesome.com/a2e0e9b6d3.js" crossorigin="anonymous"></script>
+
+    <!-- Chart.js globally (safe) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Botpress Chat Bubble -->
+    <script src="https://cdn.botpress.cloud/webchat/v3.3/inject.js" defer></script>
+    <script src="https://files.bpcontent.cloud/2025/10/19/18/20251019182617-TNXHR4Z3.js" defer></script>
+
+    @RenderSection("Styles", required: false)
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="brand">&#127967;&#65039; EventXpert</div>
+        <nav class="nav">
+            <a asp-controller="Home" asp-action="Index">Home</a>
+            <a asp-controller="Home" asp-action="Data">Data Visualization</a>
+            <a asp-controller="Events" asp-action="Index">Manage Events</a>
+            <a asp-controller="Home" asp-action="About">About Us</a>
+        </nav>
+    </header>
+
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <p>© 2025 &#127967;&#65039; EventXpert • ISM6225 | University of South Florida</p>
+    </footer>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,16 @@
+﻿@model EventXpert.Models.Event
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<h2>Event Details</h2>
+
+<p><strong>Match:</strong> @Model.Match</p>
+<p><strong>Date:</strong> @Model.Date.ToString("MMM dd, yyyy")</p>
+<p><strong>Venue:</strong> @Model.Venue</p>
+<p><strong>Price ($):</strong> @Model.Price</p>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="button-like">Edit</a>
+    <a asp-action="Index">Back to list</a>
+</p>
