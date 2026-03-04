@@ -1,6 +1,6 @@
 # EventXpert_MVC_Project
 
-# 🏟️ EventXpert: Dynamic Sports Hub
+## 🏟️ EventXpert: Dynamic Sports Hub
 
 **EventXpert** is a full-stack web application I developed to manage and analyze sports events. I transformed a static prototype into a robust **ASP.NET Core MVC** platform, featuring real-time data integration, database persistence, and a polished UI.
 
@@ -49,7 +49,21 @@ I used `JsonPropertyName` attributes to efficiently map complex external JSON da
 
 Follow these steps to get a local copy up and running.
 
-Clone the repository:
+1. Clone the repository:
 ```bash
-git clone [https://github.com/yourusername/EventXpert.git](https://github.com/yourusername/EventXpert.git)
-cd EventXpert
+https://github.com/Kushal-555/EventXpert_MVC_Project.git
+```
+2. Database Setup
+Run the following command to apply migrations and create the local SQLite database:
+```bash
+dotnet ef database update
+```
+
+3. Running the Application
+Start the development server:
+```bash
+dotnet run
+```
+Once running, open your browser and navigate to http://localhost:5000.
+
+
